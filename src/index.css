@@ -1,6 +1,6 @@
 body {
-    background: #000000;
-  }
+  background: #000000;
+}
 
 @import url(./vendor/normalize.css);
 @import url(./vendor/fonts.css);
@@ -8,6 +8,10 @@ body {
 @import url(./blocks/header/header.css);
 @import url(./blocks/header/__logo/header__logo.css);
 @import url(./blocks/header/__link/header__link.css);
+@import url(./blocks/header/__button-exit/header__button-exit.css);
+@import url(./blocks/header/__button-login/header__button-login.css);
+@import url(./blocks/header/__email/header__email.css);
+@import url(./blocks/header/__container/header__container.css);
 @import url(./blocks/main/main.css);
 @import url(./blocks/section/section.css);
 @import url(./blocks/button/button.css);
@@ -48,6 +52,10 @@ body {
 @import url(./blocks/popup/__caption/popup__caption.css);
 @import url(./blocks/popup/__figure/popup__figure.css);
 @import url(./blocks/popup/__image/popup__image.css);
+@import url(./blocks/popup/__info/popup__info.css);
+@import url(./blocks/popup/__sign/popup__sign.css);
+@import url(./blocks/popup/__text/popup__text.css);
+@import url(./blocks/popup/_opened/popup_opened.css);
 @import url(./blocks/popup/_image-opened/popup_image-opened.css);
 @import url(./blocks/popup/__input/_field/popup__input_field_job.css);
 @import url(./blocks/popup/__input/_field/popup__input_field_name.css);
@@ -59,4 +67,10 @@ body {
 @import url(./blocks/popup/_mode/popup_mode_loupe.css);
 @import url(./blocks/popup/_mode/popup_mode_confirm.css);
 @import url(./blocks/popup/_mode/popup_mode_avatar.css);
-@import url(./blocks/popup/_opened/popup_opened.css);
+@import url(./blocks/auth/__form/auth__form.css);
+@import url(./blocks/auth/__title/auth__title.css);
+@import url(./blocks/auth/__container/auth__container.css);
+@import url(./blocks/auth/__input/auth__input.css);
+@import url(./blocks/auth/__button/auth__button.css);
+@import url(./blocks/auth/__button-login/auth__button-login.css);
+@import url(./blocks/auth/__caption/auth__caption.css);

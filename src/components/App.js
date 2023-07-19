@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Route, Routes, useNavigate, Link } from "react-router-dom";
 import "../index.css";
 import { CurrentUserContext } from "../contexts/CurrentUserContext";
 import Header from "./Header.js";
@@ -6,17 +7,34 @@ import Main from "./Main.js";
 import Footer from "./Footer.js";
 import EditProfilePopup from "./EditProfilePopup.js";
 import EditAvatarPopup from "./EditAvatarPopup.js";
-import AddPlacePopup from "./AddPlacePopup";
+import AddPlacePopup from "./AddPlacePopup.js";
 import ImagePopup from "./ImagePopup.js";
+import Register from "./Register.js";
+import Login from "./Login.js";
+import InfoTooltip from "./InfoTooltip.js";
+import ProtectedRoute from "./ProtectedRoute.js";
 import api from "../utils/Api.js";
+import auth from "../utils/Auth.js";
 
 function App() {
-  const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
-  const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = useState(false);
-  const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = useState(false);
+  const navigate = useNavigate();
+
   const [selectedCard, setSelectedCard] = useState(null);
   const [cards, setCards] = useState([]);
   const [currentUser, setCurrentUser] = useState({});
+
+  const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
+  const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = useState(false);
+  const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = useState(false);
+  const [isInfoTooltipPopupOpen, setIsInfoTooltipPopupOpen] = useState(false);
+
+  const [authCheck, setAuthCheck] = useState(false);
+  const [signIn, setSignIn] = useState(false);
+  const [email, setEmail] = useState("");
+  const [values, setValue] = useState({
+    email: "",
+    password: "",
+  });
 
   useEffect(() => {
     Promise.all([api.getInitialCards(), api.getUserInfoApi()])
@@ -25,8 +43,24 @@ function App() {
         setCards(card);
         setCurrentUser(user);
       })
-      .catch((err) => console.log(`Что-то пошло не так: ${err}`));
+      .catch(console.error);
+
+    checkToken();
   }, []);
+
+  function checkToken() {
+    if (localStorage.getItem("token")) {
+      const jwt = localStorage.getItem("token");
+      auth
+        .checkToken(jwt)
+        .then((data) => {
+          setSignIn(true);
+          setEmail(data.data.email);
+          navigate("/", { replace: true });
+        })
+        .catch(console.error);
+    }
+  }
 
   function handleEditProfileClick() {
     setIsEditProfilePopupOpen(true);
@@ -44,11 +78,16 @@ function App() {
     setSelectedCard(card);
   }
 
+  function handleSignIn(login) {
+    setSignIn(login);
+  }
+
   function closeAllPopups() {
     setIsEditProfilePopupOpen(false);
     setIsAddPlacePopupOpen(false);
     setIsEditAvatarPopupOpen(false);
     setSelectedCard(null);
+    setIsInfoTooltipPopupOpen(false);
   }
 
   function handleSubmit(request) {
@@ -104,20 +143,74 @@ function App() {
     handleSubmit(makeRequest);
   }
 
+  function handleChange(evt) {
+    const { name, value } = evt.target;
+
+    setValue({
+      ...values,
+      [name]: value,
+    });
+  }
+
   return (
     <CurrentUserContext.Provider value={currentUser}>
       <div className="page">
-        <Header />
-        <Main
-          cards={cards}
-          onEditProfile={handleEditProfileClick}
-          onAddPlace={handleAddPlaceClick}
-          onEditAvatar={handleEditAvatarClick}
-          onCardClick={handleCardClick}
-          onCardLike={handleCardLike}
-          onCardDelete={handleCardDelete}
-        />
+        <Header userEmail={email} onLogin={handleSignIn} />
+
+        <Routes>
+          <Route
+            path="/sign-up"
+            element={
+              <Register
+                onChange={handleChange}
+                setAuthCheck={setAuthCheck}
+                setEmail={setEmail}
+                values={values}
+                setValue={setValue}
+                isOpen={setIsInfoTooltipPopupOpen}
+              />
+            }
+          />
+          <Route
+            path="/sign-in"
+            element={
+              <Login
+                onLogin={handleSignIn}
+                onChange={handleChange}
+                setAuthCheck={setAuthCheck}
+                email={email}
+                setEmail={setEmail}
+                values={values}
+                setValue={setValue}
+                isOpen={setIsInfoTooltipPopupOpen}
+              />
+            }
+          />
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute
+                element={Main}
+                cards={cards}
+                onEditProfile={handleEditProfileClick}
+                onAddPlace={handleAddPlaceClick}
+                onEditAvatar={handleEditAvatarClick}
+                onCardClick={handleCardClick}
+                onCardLike={handleCardLike}
+                onCardDelete={handleCardDelete}
+                signIn={signIn}
+              />
+            }
+          />
+        </Routes>
+
         <Footer />
+
+        <InfoTooltip
+          authCheck={authCheck}
+          isOpen={isInfoTooltipPopupOpen}
+          onClose={closeAllPopups}
+        />
 
         <EditProfilePopup
           isOpen={isEditProfilePopupOpen}
